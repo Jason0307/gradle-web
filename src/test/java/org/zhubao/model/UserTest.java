@@ -1,0 +1,100 @@
+/**
+ * 
+ */
+package org.zhubao.model;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.zhubao.service.UserService;
+import org.zhubao.util.MD5Util;
+import org.zhubao.vo.FilterVo;
+
+import com.google.common.collect.ImmutableMap;
+
+/**
+ * @author Jason.Zhu
+ * @date 2014-7-24
+ * @email jasonzhu@augmentum.com.cn
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext.xml")
+public class UserTest {
+
+	private User user;
+	private String userId;
+	@Autowired
+	private UserService userService;
+
+	@Before
+	public void setUp() {
+	    user = new User();
+	    String username = "Jason" + new Random().nextInt(10000) + 1;
+		user.setUsername(username);
+		user.setEmailAddress(username + "@gamecloudstudios.com");
+		String password = MD5Util.generatePassword("123456");
+		user.setPassword(password);
+	    userId = UUID.randomUUID().toString();
+		user.setUserId(userId);
+		userService.saveUser(user);
+	}
+
+	@After
+	public void destroy() {
+		userService.deleteUser(userId);
+	}
+
+	/*
+	@Test
+	public void testSaveUser() {
+		userService.saveUser(user);
+		User user2 = userService.findByUserId(userId);
+		assertEquals(user.getUsername(), user2.getUsername());
+	}
+	**/
+	@Test
+	public void testLogin(){
+		User loginUser = userService.login(user.getUsername(), "123456");
+		System.out.println(loginUser);
+		assertNotNull(loginUser);
+	}
+	
+	@Test
+	public void testFindByEmail(){
+		User findUser = userService.findByEmail(user.getEmailAddress());
+		assertNotNull(findUser);
+	}
+	
+	@Test
+	public void testFindBySearch(){
+		User searchUser = new User();
+		searchUser.setUsername("jason");
+		searchUser.setEmailAddress("game");
+		Page<User> page = userService.findBySearch(searchUser,new PageRequest(1,2));
+		System.out.println(page.getTotalElements());
+		System.out.println(page.getContent());
+	}
+	
+	@Test
+	public void testFindByConditon(){
+		FilterVo filterVo = new FilterVo();
+		Map<String,String> filters = ImmutableMap.of("username", "jason","emailAddress","jason5","age","5");
+		filterVo.setFilters(filters);
+		List<User> users = userService.findByCondition(filterVo);
+		assertEquals(1,users.size());
+	}
+}
