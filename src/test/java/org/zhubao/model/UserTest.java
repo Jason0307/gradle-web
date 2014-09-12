@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableMap;
 public class UserTest {
 
 	private User user;
-	private String userId;
 	@Autowired
 	private UserService userService;
 
@@ -48,14 +47,12 @@ public class UserTest {
 		user.setEmailAddress(username + "@gamecloudstudios.com");
 		String password = MD5Util.generatePassword("123456");
 		user.setPassword(password);
-	    userId = UUID.randomUUID().toString();
-		user.setUserId(userId);
 		userService.saveUser(user);
 	}
 
 	@After
 	public void destroy() {
-		userService.deleteUser(userId);
+		userService.deleteUser(user);
 	}
 
 	/*

@@ -24,6 +24,7 @@
 	<mvc:resources location="/fonts/" mapping="/fonts/**" />
 	<mvc:resources location="/uploadDir/" mapping="/uploadDir/**" />
 
+	<bean class="org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration"/> 
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
 	<bean id="multipartResolver"
